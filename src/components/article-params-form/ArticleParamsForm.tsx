@@ -7,7 +7,8 @@ import {Text} from "src/ui/text"
 import {fontFamilyOptions, fontColors, fontSizeOptions, contentWidthArr,backgroundColors,defaultArticleState, ArticleStateType, OptionType} from 'src/constants/articleProps';
 import clsx from 'clsx';
 import styles from './ArticleParamsForm.module.scss';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import {useOutsideClickClose} from 'src/ui/select/hooks/useOutsideClickClose'
 
 export const ArticleParamsForm = ({
     currentArticleState,
@@ -16,44 +17,53 @@ export const ArticleParamsForm = ({
     currentArticleState: ArticleStateType;
     setCurrentArticleState: (param: ArticleStateType) => void;
 }) => {
-	const[state, setState] = useState(false);
-	const hendleClick = ()=>{
-		setState(()=> state === false? true: false)
+	//состояние открытия/закрытия сайлбара
+	const[isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+	const onClose = ()=>{
+		setIsMenuOpen(()=> isMenuOpen === false? true: false)
 	};
 
+	//состояние формы и ее обновление при выборе новых настроек
 	const [stateForm, setStateForm] = useState(currentArticleState);
-	
 	const selectFont = (choose: OptionType) =>{
 		setStateForm((oldState)=> ({...oldState,fontFamilyOption: choose}))
-	}
+	};
 	const selectFontColor = (choose: OptionType) =>{
 		setStateForm((oldState)=> ({...oldState,fontColor: choose}))
-	}
+	};
 	const selectBackgroudColor = (choose: OptionType) =>{
 		setStateForm((oldState)=> ({...oldState,backgroundColor: choose}))
-	}
+	};
 	const selectContentWidth = (choose: OptionType) =>{
 		setStateForm((oldState)=> ({...oldState,contentWidth: choose}))
-	}
+	};
 	const selectFontSize = (choose: OptionType) =>{
 		setStateForm((oldState)=> ({...oldState,fontSizeOption: choose}))
-	}
+	};
 
+	//сброс настроек
 	const hendlReset = ()=>{
 		setCurrentArticleState(defaultArticleState)
-	}
+	};
 
-	addEventListener("submit", (event)=>{
+	//слушатель на кнопку "применить"
+	const apply = ()=> {
+	 addEventListener("submit", (event)=>{
 		event.preventDefault()
 		setCurrentArticleState(stateForm)
-	})
+	})};
+
+	//закрытие сайдбара по клику мимо него
+	const rootRef = useRef<HTMLDivElement>(null);
+	const isOpen = isMenuOpen
+	useOutsideClickClose({isOpen, rootRef, onClose, onChange:setIsMenuOpen,});
 
 	return (
 		<>
-			<ArrowButton isOpen={state} onClick={hendleClick} />
-			<aside className={clsx(styles.container, {[styles.container_open]: state})}>
+			<ArrowButton isOpen={isMenuOpen} onClick={onClose} />
+			<aside className={clsx(styles.container, {[styles.container_open]: isMenuOpen})} ref={rootRef}>
 
-				<form className={styles.form}>
+				<form className={styles.form} onSubmit={apply}>
 					<Text  
 						as = {'h2'}
 						size = {31}
