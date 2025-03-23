@@ -47,11 +47,10 @@ export const ArticleParamsForm = ({
 	};
 
 	//слушатель на кнопку "применить"
-	const apply = ()=> {
-	 addEventListener("submit", (event)=>{
+	const apply = (event:React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement, MouseEvent>)=> {
 		event.preventDefault()
 		setCurrentArticleState(stateForm)
-	})};
+	};
 
 	//закрытие сайдбара по клику мимо него
 	const rootRef = useRef<HTMLDivElement>(null);
